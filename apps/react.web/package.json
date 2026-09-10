@@ -10,9 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@schedule-x/calendar": "^4.8.0",
+    "@schedule-x/events-service": "^4.8.0",
+    "@schedule-x/react": "^4.1.0",
+    "@schedule-x/theme-default": "^4.8.0",
+    "lucide-react": "^1.44.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.3"
+    "react-router-dom": "^7.18.3",
+    "temporal-polyfill": "^1.0.4"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
