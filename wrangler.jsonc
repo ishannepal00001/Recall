@@ -6,15 +6,18 @@
   "compatibility_flags": ["nodejs_compat"],
   "d1_databases": [
     {
-      "binding": "DB",
+      "binding": "recall_db",
       "database_name": "recall_db",
       "database_id": "replace-with-actual-id",
       "migrations_dir": "migrations"
     }
   ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
+  "vars": {
+    "JWT_SECRET": "replace-with-strong-jwt-secret",
+    "JWT_REFRESH_SECRET": "replace-with-strong-refresh-secret",
+    "RESEND_API_KEY": "re_replace_with_actual_key",
+    "RESEND_FROM": "Recall <onboarding@resend.dev>"
+  },
   // "kv_namespaces": [
   //   {
   //     "binding": "MY_KV_NAMESPACE",
