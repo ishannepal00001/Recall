@@ -1,3 +1,12 @@
-import WardrobePage from '../pages/Wardrobe'
 import Layout from '../components/Layout'
-export default function WardrobeRoute() { return <Layout><WardrobePage /></Layout> }
+import WardrobePage from '../pages/Wardrobe'
+import { useWardrobeFacade } from '../facade/wardrobe'
+
+export default function WardrobeRoute() {
+  const facade = useWardrobeFacade()
+  return (
+    <Layout>
+      <WardrobePage items={facade.items} isLoading={facade.list.isLoading} />
+    </Layout>
+  )
+}

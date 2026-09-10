@@ -1,0 +1,1 @@
+export { useWardrobeFacade } from './wardrobe'
