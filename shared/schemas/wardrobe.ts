@@ -39,13 +39,12 @@ export type WardrobeStatus = z.infer<typeof wardrobeStatusSchema>
 // Shared field helpers
 // ---------------------------------------------------------------------------
 
-const imageUrlField = z
-  .string()
-  .url('Image URL must be a valid URL')
-  .max(2048, 'Image URL too long')
+const imageFileSchema = z
+  .custom<File>((v) => v instanceof File, 'Image must be a file')
+  .refine((f) => f.size <= 5 * 1024 * 1024, 'Image must be less than 5MB')
+  .refine((f) => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(f.type), 'Only JPEG, PNG, WEBP allowed')
   .optional()
   .nullable()
-  .or(z.literal('').transform(() => null))
 
 const titleField = z
   .string()
@@ -83,19 +82,18 @@ const borrowedByField = z
 
 export const wardrobeCreateSchema = z
   .object({
-    image_url: imageUrlField,
-    imageUrl: z.string().url().max(2048).optional(), // alias for camelCase clients
+    image: imageFileSchema,
     title: titleField,
     type: wardrobeTypeSchema,
     description: descriptionField,
     status: wardrobeStatusSchema.default('available').optional(),
     store_location: storeLocationField,
-    storeLocation: z.string().trim().max(150).optional(), // alias
+    storeLocation: z.string().trim().max(150).optional(),
     borrowed_by: borrowedByField,
-    borrowedBy: z.string().trim().max(150).optional(), // alias
+    borrowedBy: z.string().trim().max(150).optional(),
   })
   .transform((data) => ({
-    image_url: (data.image_url ?? (data as any).imageUrl ?? null) as string | null,
+    image: (data.image as File | null) ?? null,
     title: data.title,
     type: data.type,
     description: (data.description as string | null) ?? null,
@@ -122,9 +120,8 @@ export const wardrobeCreateSchema = z
 
 export type WardrobeCreateInput = z.infer<typeof wardrobeCreateSchema>
 
-// Stripped inferred type after transform is flat; re-export raw for docs if needed
 export type WardrobeCreateRawInput = {
-  image_url?: string | null
+  image?: File | null
   title: string
   type: WardrobeType
   description?: string | null
@@ -139,8 +136,7 @@ export type WardrobeCreateRawInput = {
 
 export const wardrobeUpdateSchema = z
   .object({
-    image_url: imageUrlField.optional(),
-    imageUrl: z.string().url().max(2048).optional(),
+    image: imageFileSchema.optional(),
     title: titleField.optional(),
     type: wardrobeTypeSchema.optional(),
     description: descriptionField.optional(),
@@ -151,7 +147,7 @@ export const wardrobeUpdateSchema = z
     borrowedBy: z.string().trim().max(150).optional(),
   })
   .transform((data) => ({
-    image_url: (data.image_url ?? (data as any).imageUrl) as string | null | undefined,
+    image: data.image as File | null | undefined,
     title: data.title,
     type: data.type,
     description: data.description as string | null | undefined,
