@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import auth from './api/v1/auth'
 import wardrobe from './api/v1/wardrobe'
+import financials from './api/v1/financials'
 import type { CloudflareBindings } from './types/env'
 import { check_wear_due } from './scheduled/check_wear_due'
 
@@ -31,6 +32,7 @@ app.get('/health', (c) => {
 app.route('/api/v1/auth', auth)
 app.route('/api/v1/wardrobe', wardrobe)
 app.route('/api/v1/wardobe', wardrobe)
+app.route('/api/v1/financials', financials)
 
 export default {
   fetch: app.fetch,
