@@ -8,10 +8,10 @@ export default function EventsPage() {
           { date: 'Oct 02', title: 'Financial Review', tag: 'Finance' },
           { date: 'Oct 15', title: 'Task Sprint', tag: 'Tasks' },
         ].map((e) => (
-          <div key={e.title} className="flex flex-wrap items-center gap-3 sm:gap-4 rounded-xl bg-white/[0.06] border border-white/10 p-4">
-            <span className="px-3 py-2 rounded-lg bg-teal text-white text-sm font-medium shrink-0">{e.date}</span>
+          <div key={e.title} className="flex flex-wrap items-center gap-3 sm:gap-4 rounded-md bg-white/[0.06] border border-white/10 p-4">
+            <span className="px-3 py-2 rounded-sm bg-teal text-white text-sm font-medium shrink-0">{e.date}</span>
             <span className="text-white flex-1 min-w-0 text-sm sm:text-base">{e.title}</span>
-            <span className="text-xs px-2 py-1 rounded-full bg-primary text-white shrink-0">{e.tag}</span>
+            <span className="text-xs px-2 py-1 rounded-sm bg-primary text-white shrink-0">{e.tag}</span>
           </div>
         ))}
       </div>

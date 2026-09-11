@@ -16,13 +16,16 @@
     "lint": "oxlint"
   },
   "dependencies": {
+    "@preact/signals": "^2.11.2",
     "@schedule-x/calendar": "^4.8.0",
     "@schedule-x/events-service": "^4.8.0",
     "@schedule-x/react": "^4.1.0",
     "@schedule-x/theme-default": "^4.8.0",
     "@tanstack/react-query": "^5.102.8",
     "lucide-react": "^1.44.0",
+    "preact": "^10.29.8",
     "react": "^19.2.8",
+    "react-chat-elements": "^12.0.18",
     "react-dom": "^19.2.8",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.18.3",

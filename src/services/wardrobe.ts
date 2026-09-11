@@ -33,6 +33,8 @@ export async function createWardrobeService(
       image_file_id = uploaded.fileId
     }
 
+    const in_use_since = input.status === 'in_use' ? now : null
+
     const row = await crud.insertWardrobeItem(db, {
       id,
       user_id: userId,
@@ -44,6 +46,7 @@ export async function createWardrobeService(
       status: input.status,
       store_location: input.store_location,
       borrowed_by: input.borrowed_by,
+      in_use_since,
       created_at: now,
       updated_at: now,
     })
@@ -130,6 +133,16 @@ export async function updateWardrobeService(
     // borrowed_by always resolved to enforce invariant (null when not borrowed)
     if (input.status !== undefined || input.borrowed_by !== undefined) {
       patch.borrowed_by = borrowed_by
+    }
+    // Track when item was put into in_use state (for check_wear_due cron)
+    if (input.status !== undefined) {
+      if (input.status === 'in_use') {
+        // entering in_use: set in_use_since to now (if not already in_use)
+        patch.in_use_since = existing!.status === 'in_use' && existing!.in_use_since ? existing!.in_use_since : new Date().toISOString()
+      } else if (existing!.status === 'in_use') {
+        // leaving in_use: clear the timestamp
+        patch.in_use_since = null
+      }
     }
 
     // Handle image replacement via ImageKit

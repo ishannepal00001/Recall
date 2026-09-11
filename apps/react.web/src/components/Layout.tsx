@@ -48,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(true)}
-            className="lg:hidden w-9 h-9 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center text-white transition-colors shrink-0"
+            className="lg:hidden w-9 h-9 rounded-sm bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center text-white transition-colors shrink-0"
             aria-label="Open menu"
           >
             <Menu size={18} />
@@ -57,7 +57,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {collapsed && (
             <button
               onClick={() => setCollapsed(false)}
-              className="hidden lg:flex w-9 h-9 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 items-center justify-center text-white/70 hover:text-white transition-colors shrink-0"
+              className="hidden lg:flex w-9 h-9 rounded-sm bg-white/10 hover:bg-white/15 border border-white/10 items-center justify-center text-white/70 hover:text-white transition-colors shrink-0"
               aria-label="Expand sidebar"
               title="Expand sidebar"
             >
@@ -65,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </button>
           )}
           <div className="flex-1 min-w-0 lg:hidden flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">R</div>
+            <div className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">R</div>
             <span className="text-white font-semibold text-sm">Recall</span>
           </div>
           <div className="hidden lg:block flex-1" />

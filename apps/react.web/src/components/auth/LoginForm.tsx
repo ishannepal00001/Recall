@@ -29,7 +29,7 @@ export function LoginForm({ onLogin, isPending }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+          className="w-full rounded-sm bg-white/5 border border-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
         />
       </div>
 
@@ -45,7 +45,7 @@ export function LoginForm({ onLogin, isPending }: LoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+            className="w-full rounded-sm bg-white/5 border border-white/10 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
           />
           <button
             type="button"
@@ -61,7 +61,7 @@ export function LoginForm({ onLogin, isPending }: LoginFormProps) {
       <button
         type="submit"
         disabled={!!isPending}
-        className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[#6b4ee6] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl py-2.5 text-sm font-medium transition-colors"
+        className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[#6b4ee6] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-sm py-2.5 text-sm font-medium transition-colors"
       >
         {isPending && <Loader2 size={16} className="animate-spin" />}
         {isPending ? 'Signing in...' : 'Sign in'}

@@ -21,6 +21,7 @@ export function toWardrobeResponse(row: WardrobeRow) {
     status: row.status,
     store_location: row.store_location,
     borrowed_by: row.borrowed_by,
+    in_use_since: row.in_use_since,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }

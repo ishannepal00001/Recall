@@ -5,8 +5,8 @@ export async function insertWardrobeItem(db: D1Database, row: WardrobeRow): Prom
   try {
     await db
       .prepare(
-        `INSERT INTO wardrobe_items (id, user_id, image_url, image_file_id, title, type, description, status, store_location, borrowed_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO wardrobe_items (id, user_id, image_url, image_file_id, title, type, description, status, store_location, borrowed_by, in_use_since)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         row.id,
@@ -19,6 +19,7 @@ export async function insertWardrobeItem(db: D1Database, row: WardrobeRow): Prom
         row.status,
         row.store_location,
         row.borrowed_by,
+        row.in_use_since,
       )
       .run()
     return row
@@ -107,7 +108,7 @@ export async function listWardrobeItems(
 export async function updateWardrobeItem(
   db: D1Database,
   id: string,
-  fields: Partial<Pick<WardrobeRow, 'image_url' | 'image_file_id' | 'title' | 'type' | 'description' | 'status' | 'store_location' | 'borrowed_by'>>
+  fields: Partial<Pick<WardrobeRow, 'image_url' | 'image_file_id' | 'title' | 'type' | 'description' | 'status' | 'store_location' | 'borrowed_by' | 'in_use_since'>>
 ): Promise<WardrobeRow | null> {
   try {
     const keys = Object.keys(fields) as (keyof typeof fields)[]

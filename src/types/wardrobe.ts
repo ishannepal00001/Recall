@@ -10,6 +10,7 @@ export type WardrobeRow = {
   status: string
   store_location: string | null
   borrowed_by: string | null
+  in_use_since: string | null
   created_at: string
   updated_at: string
 }

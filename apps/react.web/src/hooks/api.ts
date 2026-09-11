@@ -1,3 +1,5 @@
+import { useAuthStore } from '../stores/auth'
+
 export function getApiBaseUrl(): string {
   const viteUrl = import.meta.env.VITE_API_URL as string | undefined
   if (import.meta.env.DEV) {
@@ -16,6 +18,23 @@ export function apiUrl(path: string): string {
 
 type ApiOptions = RequestInit & { params?: Record<string, string | number | boolean | undefined> }
 
+function handleUnauthorizedRedirect() {
+  if (typeof window === 'undefined') return
+  if (window.location.pathname === '/auth') return
+  try {
+    useAuthStore.getState().clearAuth()
+  } catch {
+    // ignore
+  }
+  try {
+    const raw = localStorage.getItem('recall-auth')
+    if (raw) localStorage.removeItem('recall-auth')
+  } catch {
+    // ignore storage errors
+  }
+  window.location.href = '/auth'
+}
+
 export async function apiFetch<T>(path: string, opts: ApiOptions = {}): Promise<T> {
   const { params, headers, ...init } = opts
   let url = apiUrl(path)
@@ -32,6 +51,9 @@ export async function apiFetch<T>(path: string, opts: ApiOptions = {}): Promise<
     ...init,
   })
   const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error((body as any).message ?? `Request failed ${res.status}`)
+  if (!res.ok) {
+    if (res.status === 401) handleUnauthorizedRedirect()
+    throw new Error((body as any).message ?? `Request failed ${res.status}`)
+  }
   return body as T
 }

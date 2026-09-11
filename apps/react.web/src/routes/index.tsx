@@ -5,6 +5,7 @@ import WardrobeRoute from './wardrobe'
 import TasksRoute from './tasks'
 import FinancialsRoute from './financials'
 import EventsRoute from './events'
+import AiRoute from './ai'
 import AuthRoute from './auth'
 import NotFoundRoute from './notfound'
 import RequireAuth from './protected'
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
     element: <RequireAuth />,
     children: [
       { path: '/', element: <HomeRoute /> },
+      { path: '/home', element: <HomeRoute /> },
+      { path: '/home/', element: <HomeRoute /> },
+      { path: '/ai', element: <AiRoute /> },
+      { path: '/ai/', element: <AiRoute /> },
       { path: '/plans', element: <PlansRoute /> },
       { path: '/wardrobe', element: <WardrobeRoute /> },
       { path: '/tasks', element: <TasksRoute /> },
