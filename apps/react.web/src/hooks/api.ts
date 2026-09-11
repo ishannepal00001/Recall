@@ -1,7 +1,7 @@
 export function getApiBaseUrl(): string {
   const viteUrl = import.meta.env.VITE_API_URL as string | undefined
   if (import.meta.env.DEV) {
-    return viteUrl && viteUrl.includes('localhost') ? viteUrl : 'http://localhost:8787'
+    return viteUrl ? viteUrl.replace(/\/$/, '') : 'http://localhost:8787'
   }
   if (viteUrl) return viteUrl.replace(/\/$/, '')
   if (typeof window !== 'undefined') return window.location.origin

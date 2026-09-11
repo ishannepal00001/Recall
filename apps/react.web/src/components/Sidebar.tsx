@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, ClipboardList, Shirt, CheckSquare, Wallet, CalendarDays, Plus } from 'lucide-react'
+import { LayoutDashboard, ClipboardList, Shirt, CheckSquare, Wallet, CalendarDays, Plus, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 
 const navItems = [
   { label: 'Home', to: '/', icon: LayoutDashboard },
@@ -10,21 +10,51 @@ const navItems = [
   { label: 'Events', to: '/events', icon: CalendarDays },
 ]
 
-export default function Sidebar() {
-  return (
-    <aside className="w-[260px] min-h-screen bg-sidebar border-r border-white/10 flex flex-col p-4 gap-6">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-2">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-lg">
+type Props = {
+  collapsed: boolean
+  onToggleCollapse: () => void
+  mobileOpen: boolean
+  onCloseMobile: () => void
+}
+
+export default function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }: Props) {
+  const widthClass = collapsed ? 'lg:w-[72px]' : 'lg:w-[260px]'
+
+  const sidebarContent = (
+    <>
+      {/* Logo + toggle */}
+      <div className={`flex items-center gap-3 px-2 ${collapsed ? 'lg:justify-center lg:px-0' : ''}`}>
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
           R
         </div>
-        <span className="text-white font-semibold tracking-tight">Recall</span>
-        <span className="ml-auto w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#2ED47A]" title="online" />
+        {!collapsed && (
+          <>
+            <span className="text-white font-semibold tracking-tight">Recall</span>
+            <span className="ml-auto w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#2ED47A] hidden lg:block" title="online" />
+          </>
+        )}
+        {/* Desktop collapse toggle */}
+        <button
+          onClick={onToggleCollapse}
+          className={`hidden lg:flex ml-auto w-8 h-8 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 items-center justify-center text-white/70 hover:text-white transition-colors ${collapsed ? 'lg:ml-0' : ''}`}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand' : 'Collapse'}
+        >
+          {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+        </button>
+        {/* Mobile close */}
+        <button
+          onClick={onCloseMobile}
+          className="lg:hidden ml-auto w-8 h-8 rounded-lg bg-white/10 hover:bg-white/15 flex items-center justify-center text-white/70"
+          aria-label="Close menu"
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* Add button */}
-      <button className="w-full bg-primary hover:bg-[#6b4ee6] text-white rounded-xl py-2.5 font-medium flex items-center justify-center gap-2 transition-colors">
-        <Plus size={16} /> New
+      <button className={`w-full bg-primary hover:bg-[#6b4ee6] text-white rounded-xl py-2.5 font-medium flex items-center justify-center gap-2 transition-colors ${collapsed ? 'lg:px-0 lg:aspect-square lg:rounded-xl lg:w-10 lg:h-10 lg:mx-auto' : ''}`}>
+        <Plus size={16} /> {!collapsed && <span>New</span>}
       </button>
 
       {/* Nav */}
@@ -35,36 +65,72 @@ export default function Sidebar() {
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={onCloseMobile}
+              title={collapsed ? item.label : undefined}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
                   isActive ? 'bg-primary text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`
+                } ${collapsed ? 'lg:justify-center lg:px-2' : ''}`
               }
             >
-              <span className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/10">
+              <span className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/10 shrink-0">
                 <Icon size={16} />
               </span>
-              <span className="flex-1">{item.label}</span>
+              {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
             </NavLink>
           )
         })}
       </nav>
 
       {/* Status card */}
-      <div className="mt-auto rounded-2xl bg-white/[0.06] border border-white/10 p-4 flex flex-col gap-3">
-        <div className="flex items-center gap-2">
+      {!collapsed ? (
+        <div className="mt-auto rounded-2xl bg-white/[0.06] border border-white/10 p-4 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-secondary" />
+            <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-background">According to plan</span>
+          </div>
+          <p className="text-xs text-white/60">Progress</p>
+          <div className="h-2 rounded-full bg-white/10 overflow-hidden flex">
+            <div className="h-full bg-secondary" style={{ width: '68%' }} />
+            <div className="h-full bg-teal" style={{ width: '22%' }} />
+          </div>
+          <p className="text-xs text-white/50">68% completed • 22% in review</p>
+        </div>
+      ) : (
+        <div className="mt-auto hidden lg:flex flex-col items-center gap-2 py-3 rounded-2xl bg-white/[0.06] border border-white/10">
           <span className="w-2 h-2 rounded-full bg-secondary" />
-          <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-background">According to plan</span>
+          <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-full bg-secondary" style={{ width: '68%' }} />
+          </div>
         </div>
-        <p className="text-xs text-white/60">Progress</p>
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden flex">
-          <div className="h-full bg-secondary" style={{ width: '68%' }} />
-          <div className="h-full bg-teal" style={{ width: '22%' }} />
-        </div>
-        <p className="text-xs text-white/50">68% completed • 22% in review</p>
-      </div>
+      )}
 
-      <p className="text-[11px] text-white/30 px-2">© 2026 Recall</p>
-    </aside>
+      {!collapsed && <p className="text-[11px] text-white/30 px-2">© 2026 Recall</p>}
+    </>
+  )
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside
+        className={`hidden lg:flex ${widthClass} min-h-screen bg-sidebar border-r border-white/10 flex-col p-4 gap-6 shrink-0 sticky top-0 h-screen transition-all duration-300 ease-in-out`}
+      >
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile drawer */}
+      <div className={`lg:hidden fixed inset-0 z-40 transition ${mobileOpen ? 'visible' : 'invisible'}`} aria-hidden={!mobileOpen}>
+        {/* backdrop */}
+        <div
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity ${mobileOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={onCloseMobile}
+        />
+        <aside
+          className={`absolute left-0 top-0 h-full w-[280px] max-w-[85vw] bg-sidebar border-r border-white/10 flex flex-col p-4 gap-6 overflow-y-auto transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
+          {sidebarContent}
+        </aside>
+      </div>
+    </>
   )
 }

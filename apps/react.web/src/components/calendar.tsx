@@ -22,7 +22,7 @@ export default function Calendar() {
   })
 
   return (
-    <div className="sx-react-calendar-wrapper w-full max-w-full h-[850px] min-h-[600px] rounded-2xl overflow-hidden border border-white/10 bg-white/[0.02] flex flex-col [&_>div]:flex-1 [&_>div]:h-full [&_.sx__calendar]:h-full [&_.sx__month-grid]:min-h-[600px]">
+    <div className="sx-react-calendar-wrapper w-full max-w-full h-[600px] sm:h-[700px] lg:h-[850px] min-h-[500px] rounded-2xl overflow-hidden border border-white/10 bg-white/[0.02] flex flex-col [&_>div]:flex-1 [&_>div]:h-full [&_.sx__calendar]:h-full [&_.sx__month-grid]:min-h-[400px] sm:[&_.sx__month-grid]:min-h-[600px] overflow-x-auto">
       <ScheduleXCalendar calendarApp={calendar} />
     </div>
   )

@@ -2,14 +2,14 @@ import Calendar from '../components/calendar'
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-3xl font-bold text-white">Home</h1>
+    <div className="flex flex-col gap-4 sm:gap-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">Home</h1>
         <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-secondary text-background">According to plan</span>
       </div>
-      <p className="text-white/60">Welcome to Recall — your canvas is <span className="text-white">ready</span>.</p>
+      <p className="text-white/60 text-sm sm:text-base">Welcome to Recall — your canvas is <span className="text-white">ready</span>.</p>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-5">
           <p className="text-sm text-white/60">Active</p>
           <p className="text-2xl font-bold text-white mt-1 flex items-center gap-2">
@@ -34,8 +34,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-2">
-        <h2 className="text-xl font-semibold text-white mb-3">Calendar</h2>
+      <div className="mt-2 overflow-x-hidden">
+        <h2 className="text-lg sm:text-xl font-semibold text-white mb-3">Calendar</h2>
         <Calendar />
       </div>
     </div>

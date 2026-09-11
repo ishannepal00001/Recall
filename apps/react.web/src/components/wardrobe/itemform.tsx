@@ -106,7 +106,7 @@ export function WardrobeItemForm({ open, onClose, initial, onSuccess }: Props) {
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Vintage Denim Jacket" className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-white/70">Type</label>
             <select value={type} onChange={(e) => setType(e.target.value as WardrobeItem['type'])} className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-primary">
