@@ -3,21 +3,41 @@ import { generateWardrobeId, assertWardrobeOwnership, toWardrobeResponse, resolv
 import * as crud from '../crud/wardrobe'
 import type { WardrobeCreateInput, WardrobeUpdateInput, WardrobeQueryInput } from '../../shared/schemas/wardrobe'
 import type { ServiceResult } from '../types/auth'
+import { uploadToImagekit, deleteFromImagekit, deleteFromImagekitByUrl } from '../utils/imagekit'
+import type { ImageKitEnv } from '../utils/imagekit'
 
 // Inputs are zod-inferred — not hand-written types
 
 export async function createWardrobeService(
   db: D1Database,
   userId: string,
-  input: WardrobeCreateInput
+  input: WardrobeCreateInput,
+  env: ImageKitEnv,
 ): Promise<ServiceResult> {
   try {
     const id = generateWardrobeId()
     const now = new Date().toISOString()
+
+    let image_url: string | null = null
+    let image_file_id: string | null = null
+
+    if (input.image) {
+      const uploaded = await uploadToImagekit(env, {
+        file: input.image,
+        fileName: (input.image as File).name || `${id}-${Date.now()}`,
+        folder: `/wardrobe/${userId}`,
+        useUniqueFileName: true,
+        tags: [input.type],
+      })
+      image_url = uploaded.url
+      image_file_id = uploaded.fileId
+    }
+
     const row = await crud.insertWardrobeItem(db, {
       id,
       user_id: userId,
-      image_url: input.image_url,
+      image_url,
+      image_file_id,
       title: input.title,
       type: input.type,
       description: input.description,
@@ -37,7 +57,7 @@ export async function createWardrobeService(
 export async function listWardrobeService(
   db: D1Database,
   userId: string,
-  query: WardrobeQueryInput
+  query: WardrobeQueryInput,
 ): Promise<ServiceResult> {
   try {
     const page = query.page ?? 1
@@ -90,7 +110,8 @@ export async function updateWardrobeService(
   db: D1Database,
   userId: string,
   id: string,
-  input: WardrobeUpdateInput
+  input: WardrobeUpdateInput,
+  env: ImageKitEnv,
 ): Promise<ServiceResult> {
   try {
     const existing = await crud.getWardrobeById(db, id)
@@ -101,7 +122,6 @@ export async function updateWardrobeService(
 
     // Build patch — only include fields that were actually supplied
     const patch: Record<string, unknown> = {}
-    if (input.image_url !== undefined) patch.image_url = input.image_url
     if (input.title !== undefined) patch.title = input.title
     if (input.type !== undefined) patch.type = input.type
     if (input.description !== undefined) patch.description = input.description
@@ -110,6 +130,41 @@ export async function updateWardrobeService(
     // borrowed_by always resolved to enforce invariant (null when not borrowed)
     if (input.status !== undefined || input.borrowed_by !== undefined) {
       patch.borrowed_by = borrowed_by
+    }
+
+    // Handle image replacement via ImageKit
+    if (input.image !== undefined) {
+      if (input.image) {
+        // upload new image
+        const uploaded = await uploadToImagekit(env, {
+          file: input.image,
+          fileName: (input.image as File).name || `${id}-${Date.now()}`,
+          folder: `/wardrobe/${userId}`,
+          useUniqueFileName: true,
+          tags: input.type ? [input.type] : undefined,
+        })
+        patch.image_url = uploaded.url
+        patch.image_file_id = uploaded.fileId
+
+        // delete old image (best-effort, don't fail update if delete fails)
+        const oldFileId = (existing as any)?.image_file_id as string | null | undefined
+        const oldUrl = existing!.image_url
+        try {
+          if (oldFileId) {
+            await deleteFromImagekit(env, oldFileId)
+          } else if (oldUrl) {
+            await deleteFromImagekitByUrl(env, oldUrl)
+          }
+        } catch (e) {
+          console.warn(`[wardrobe] failed to delete old ImageKit image for item ${id}:`, e)
+        }
+      } else if (input.image === null) {
+        // explicit clear? treat as no-op unless we want to support removing image
+        // For now, if frontend sends null explicitly we keep existing — to delete image, require dedicated flow.
+        // Uncomment to support clearing:
+        // patch.image_url = null
+        // patch.image_file_id = null
+      }
     }
 
     if (Object.keys(patch).length === 0) {
@@ -125,10 +180,30 @@ export async function updateWardrobeService(
   }
 }
 
-export async function deleteWardrobeService(db: D1Database, userId: string, id: string): Promise<ServiceResult> {
+export async function deleteWardrobeService(
+  db: D1Database,
+  userId: string,
+  id: string,
+  env: ImageKitEnv,
+): Promise<ServiceResult> {
   try {
     const row = await crud.getWardrobeById(db, id)
     assertWardrobeOwnership(row, userId, id)
+
+    // Best-effort ImageKit cleanup before DB delete
+    const fileId = (row as any)?.image_file_id as string | null | undefined
+    const imageUrl = row!.image_url
+    try {
+      if (fileId) {
+        await deleteFromImagekit(env, fileId)
+      } else if (imageUrl) {
+        await deleteFromImagekitByUrl(env, imageUrl)
+      }
+    } catch (e) {
+      console.warn(`[wardrobe] failed to delete ImageKit image for item ${id}:`, e)
+      // don't block DB delete if ImageKit delete fails
+    }
+
     await crud.deleteWardrobeItem(db, id)
     return { status: 200, message: 'Wardrobe item deleted' }
   } catch (error) {

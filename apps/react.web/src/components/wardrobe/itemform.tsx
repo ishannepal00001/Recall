@@ -1,7 +1,36 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import { AlertCircle, ShieldCheck } from 'lucide-react'
 import { Modal } from '../modal'
 import { useCreateWardrobe, useUpdateWardrobe, type WardrobeItem } from '../../hooks/useWardrobe'
+
+const toastBaseStyle: React.CSSProperties = {
+  background: '#1E1F26',
+  color: '#fff',
+  border: '1px solid rgba(255,255,255,0.10)',
+  backdropFilter: 'blur(12px)',
+  borderRadius: '14px',
+  padding: '12px 14px',
+  fontSize: '13px',
+  fontWeight: 500,
+  boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.05) inset',
+}
+
+function notifyError(message: string) {
+  toast.error(message, {
+    duration: 3800,
+    icon: <AlertCircle size={18} className="text-red-400 shrink-0" />,
+    style: { ...toastBaseStyle, borderLeft: '3px solid #ef4444' },
+  })
+}
+
+function notifySuccess(message: string) {
+  toast.success(message, {
+    duration: 3000,
+    icon: <ShieldCheck size={18} className="text-secondary shrink-0" />,
+    style: { ...toastBaseStyle, borderLeft: '3px solid #2ED47A' },
+  })
+}
 
 type Props = {
   open: boolean
@@ -22,7 +51,6 @@ export function WardrobeItemForm({ open, onClose, initial, onSuccess }: Props) {
   const [image, setImage] = useState<File | null>(null)
   const [store_location, setStoreLocation] = useState('')
   const [borrowed_by, setBorrowedBy] = useState('')
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (initial) {
@@ -42,14 +70,12 @@ export function WardrobeItemForm({ open, onClose, initial, onSuccess }: Props) {
       setStoreLocation('')
       setBorrowedBy('')
     }
-    setError(null)
   }, [initial, open])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    if (!title.trim()) { setError('Title is required'); return }
-    if (status === 'borrowed' && !borrowed_by.trim()) { setError('Borrowed by is required when status is borrowed'); return }
+    if (!title.trim()) { notifyError('Title is required'); return }
+    if (status === 'borrowed' && !borrowed_by.trim()) { notifyError('Borrowed by is required when status is borrowed'); return }
     const form = new FormData()
     form.set('title', title.trim())
     form.set('type', type)
@@ -61,13 +87,12 @@ export function WardrobeItemForm({ open, onClose, initial, onSuccess }: Props) {
     try {
       if (isEdit && initial) await (update.mutateAsync as unknown as (v: unknown) => Promise<unknown>)({ id: initial.id, form })
       else await (create.mutateAsync as unknown as (v: unknown) => Promise<unknown>)(form)
-      toast.success(isEdit ? 'Item updated' : 'Item created')
+      notifySuccess(isEdit ? 'Item updated — wardrobe saved' : 'Item created — added to wardrobe')
       onSuccess?.(isEdit ? 'Item updated' : 'Item created')
       onClose()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Request failed'
-      toast.error(msg)
-      setError(msg)
+      const msg = err instanceof Error ? err.message : 'Request failed — please try again'
+      notifyError(msg)
     }
   }
 
@@ -125,8 +150,6 @@ export function WardrobeItemForm({ open, onClose, initial, onSuccess }: Props) {
           <label className="text-xs font-medium text-white/70">Description</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional details" rows={3} className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary resize-none" />
         </div>
-
-        {error && <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{error}</p>}
 
         <div className="flex justify-end gap-2 pt-2">
           <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-colors">Cancel</button>

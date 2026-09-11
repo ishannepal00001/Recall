@@ -3,6 +3,7 @@ export type WardrobeRow = {
   id: string
   user_id: string
   image_url: string | null
+  image_file_id: string | null
   title: string
   type: string
   description: string | null

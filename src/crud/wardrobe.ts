@@ -5,10 +5,21 @@ export async function insertWardrobeItem(db: D1Database, row: WardrobeRow): Prom
   try {
     await db
       .prepare(
-        `INSERT INTO wardrobe_items (id, user_id, image_url, title, type, description, status, store_location, borrowed_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO wardrobe_items (id, user_id, image_url, image_file_id, title, type, description, status, store_location, borrowed_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .bind(row.id, row.user_id, row.image_url, row.title, row.type, row.description, row.status, row.store_location, row.borrowed_by)
+      .bind(
+        row.id,
+        row.user_id,
+        row.image_url,
+        row.image_file_id,
+        row.title,
+        row.type,
+        row.description,
+        row.status,
+        row.store_location,
+        row.borrowed_by,
+      )
       .run()
     return row
   } catch (error) {
@@ -96,7 +107,7 @@ export async function listWardrobeItems(
 export async function updateWardrobeItem(
   db: D1Database,
   id: string,
-  fields: Partial<Pick<WardrobeRow, 'image_url' | 'title' | 'type' | 'description' | 'status' | 'store_location' | 'borrowed_by'>>
+  fields: Partial<Pick<WardrobeRow, 'image_url' | 'image_file_id' | 'title' | 'type' | 'description' | 'status' | 'store_location' | 'borrowed_by'>>
 ): Promise<WardrobeRow | null> {
   try {
     const keys = Object.keys(fields) as (keyof typeof fields)[]

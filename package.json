@@ -9,12 +9,14 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "hono": "^4.13.7",
+    "imagekit": "^6.0.0",
     "resend": "^6.27.0",
     "zod": "^4.6.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260910.1",
     "@types/bcryptjs": "^3.0.0",
+    "typescript": "^7.0.2",
     "wrangler": "^4.110.0"
   }
 }

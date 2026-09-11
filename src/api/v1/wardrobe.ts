@@ -15,17 +15,49 @@ const wardrobe = new Hono<{ Bindings: CloudflareBindings; Variables: AuthVariabl
 // All wardrobe routes require authentication
 wardrobe.use('/*', isLoggedIn)
 
+/**
+ * Parse request body supporting both JSON and multipart/form-data.
+ * For multipart, extracts File for `image` and string fields.
+ */
+async function parseWardrobeBody(c: any): Promise<unknown> {
+  const contentType = c.req.header('content-type') ?? ''
+  if (contentType.includes('multipart/form-data')) {
+    const form = await c.req.formData()
+    const obj: Record<string, unknown> = {}
+    // string fields
+    for (const key of ['title', 'type', 'description', 'status', 'store_location', 'storeLocation', 'borrowed_by', 'borrowedBy']) {
+      const v = form.get(key)
+      if (v !== null && typeof v === 'string' && v !== '') obj[key] = v
+      else if (v === '') obj[key] = null
+    }
+    const image = form.get('image')
+    if (image instanceof File && image.size > 0) {
+      obj.image = image
+    } else if (image instanceof File && image.size === 0) {
+      // empty file -> ignore
+    }
+    return obj
+  }
+  // fallback JSON
+  try {
+    return await c.req.json()
+  } catch (error) {
+    throw new AppError(`Invalid JSON body: ${error instanceof Error ? error.message : String(error)}`, 400)
+  }
+}
+
 // POST /api/v1/wardrobe — create item
 wardrobe.post('/', async (c) => {
   let body: unknown
   try {
-    body = await c.req.json()
+    body = await parseWardrobeBody(c)
   } catch (error) {
-    return c.json({ message: `Invalid JSON body: ${error instanceof Error ? error.message : String(error)}`, status: 400 }, 400 as any)
+    if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
+    return c.json({ message: `Invalid body: ${error instanceof Error ? error.message : String(error)}`, status: 400 }, 400 as any)
   }
   const user = c.get('user')
   try {
-    const result = await CreateWardrobeController(c.env.recall_db, user, body)
+    const result = await CreateWardrobeController(c.env.recall_db, user, body, c.env)
     return c.json(result as any, (result as any)?.status ?? 201 as any)
   } catch (error) {
     if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
@@ -63,14 +95,15 @@ wardrobe.get('/:id', async (c) => {
 wardrobe.patch('/:id', async (c) => {
   let body: unknown
   try {
-    body = await c.req.json()
+    body = await parseWardrobeBody(c)
   } catch (error) {
-    return c.json({ message: `Invalid JSON body: ${error instanceof Error ? error.message : String(error)}`, status: 400 }, 400 as any)
+    if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
+    return c.json({ message: `Invalid body: ${error instanceof Error ? error.message : String(error)}`, status: 400 }, 400 as any)
   }
   const user = c.get('user')
   const params = { id: c.req.param('id') }
   try {
-    const result = await UpdateWardrobeController(c.env.recall_db, user, params, body)
+    const result = await UpdateWardrobeController(c.env.recall_db, user, params, body, c.env)
     return c.json(result as any, (result as any)?.status ?? 200 as any)
   } catch (error) {
     if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
@@ -82,14 +115,15 @@ wardrobe.patch('/:id', async (c) => {
 wardrobe.put('/:id', async (c) => {
   let body: unknown
   try {
-    body = await c.req.json()
+    body = await parseWardrobeBody(c)
   } catch (error) {
-    return c.json({ message: `Invalid JSON body: ${error instanceof Error ? error.message : String(error)}`, status: 400 }, 400 as any)
+    if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
+    return c.json({ message: `Invalid body: ${error instanceof Error ? error.message : String(error)}`, status: 400 }, 400 as any)
   }
   const user = c.get('user')
   const params = { id: c.req.param('id') }
   try {
-    const result = await UpdateWardrobeController(c.env.recall_db, user, params, body)
+    const result = await UpdateWardrobeController(c.env.recall_db, user, params, body, c.env)
     return c.json(result as any, (result as any)?.status ?? 200 as any)
   } catch (error) {
     if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
@@ -97,12 +131,12 @@ wardrobe.put('/:id', async (c) => {
   }
 })
 
-// DELETE /api/v1/wardrobe/:id — delete item
+// DELETE /api/v1/wardrobe/:id — delete item (also deletes ImageKit file)
 wardrobe.delete('/:id', async (c) => {
   const user = c.get('user')
   const params = { id: c.req.param('id') }
   try {
-    const result = await DeleteWardrobeController(c.env.recall_db, user, params)
+    const result = await DeleteWardrobeController(c.env.recall_db, user, params, c.env)
     return c.json(result as any, (result as any)?.status ?? 200 as any)
   } catch (error) {
     if (error instanceof AppError) return c.json({ message: error.message, status: error.status }, error.status as any)
